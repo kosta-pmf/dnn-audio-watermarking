@@ -1,7 +1,7 @@
 import tensorflow as tf
 from tensorflow.keras.layers import Layer, Add, Conv1D
 from tensorflow import constant_initializer
-from utils import butter_lowpass_filter, bwh
+from utils import butter_lowpass_filter
 from random import shuffle, randint
 import numpy as np
 from config import *
