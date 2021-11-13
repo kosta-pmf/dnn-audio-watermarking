@@ -55,7 +55,7 @@ class AdditiveNoise(Layer):
         print("AdditiveNoise")
         stfts = tf.complex(inputs[:,:,:,0], inputs[:,:,:,1])
         
-        signals = tf.signal.inverse_stft(tf.transpose(stfts, perm=[0,2,1]), self.window_length, self.hop_length, self.window_length, window_fn=tf.signal.inverse_stft_window_fn(hop_length))
+        signals = tf.signal.inverse_stft(tf.transpose(stfts, perm=[0,2,1]), self.window_length, self.hop_length, self.window_length, window_fn=tf.signal.inverse_stft_window_fn(self.hop_length))
         
         noise_signals = Add()([tf.random.uniform(tf.shape(signals), maxval=self.noise_strength), signals])
 
