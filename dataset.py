@@ -1,5 +1,5 @@
 import numpy as np
-from config import BATCH_SIZE, NUM_BITS, POOL_SIZE, SIGNAL_SHAPE
+from config import BATCH_SIZE, MESSAGE_POOL, NUM_BITS, POOL_SIZE, SIGNAL_SHAPE
 import tensorflow as tf
 from random import randint
 
@@ -10,7 +10,7 @@ def create_message_pool(pool_size=1<<14, message_size=64):
 
     return np.array(list(pool))
 
-def generate_random_message(message_pool=create_message_pool(POOL_SIZE, NUM_BITS), batch_size=BATCH_SIZE, num_bits=NUM_BITS):
+def generate_random_message(message_pool=MESSAGE_POOL, batch_size=BATCH_SIZE, num_bits=NUM_BITS):
     ind = randint(0, len(message_pool)-1)
     return np.broadcast_to(message_pool[ind], (batch_size, num_bits))
   
