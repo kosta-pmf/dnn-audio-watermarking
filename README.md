@@ -4,6 +4,7 @@ The system has been trained against following watermarking attacks:
 - Additive noise
 - Low pass filtering (cut-off frequency at 4kHz)
 - Sample suppression (setting a random set of 1000 samples to zero) \
+
 You can use our pretrained models with the provided samples.
 For start, restore the embedder and the detector models:
 ```
