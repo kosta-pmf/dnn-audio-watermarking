@@ -2,8 +2,8 @@ import tensorflow as tf
 import random
 from config import HOP_LENGTH, MESSAGE_POOL, WINDOW_LENGTH
 
-def random_message():
-    return tf.expand_dims(random.choice(MESSAGE_POOL), axis=0)
+def random_message(message_pool=MESSAGE_POOL):
+    return tf.expand_dims(random.choice(message_pool), axis=0)
 
 def embed(embedder, signal, message=random_message()):
     stft = tf.transpose(tf.signal.stft(signal, WINDOW_LENGTH, HOP_LENGTH, WINDOW_LENGTH), perm=[0,2,1])
