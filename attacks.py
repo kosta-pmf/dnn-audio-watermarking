@@ -558,23 +558,20 @@ class Attacks(Layer):
     self.test = test
     self.validation = validation
     self.attack_no = attack_no
+    
     self.frequency_filter = FrequencyFilter(cutoff_frequency=4000)
-
     self.additive_noise = AdditiveNoise(probability=100, message="AdditiveNoise1", dynamic=True)
     self.lowpass_filter = ButterworthFilter(probability=100, butterworth=BUTTERWORTH, message="ButterworthFilter1", dynamic=True)
     self.flip_samples = FlipSamples(probability=100, samples_to_flip=1600, message="FlipSamples1", dynamic=True)
     self.sample_cutting = SampleCutting(probability=100, samples_to_cut=1600, dynamic=True)
     self.time_fold = TimeFold(probability=100, hop_size=1050, overlap_length=25, message="TimeFold1", dynamic=True)
-    self.time_stretch = TimeStretch(probability=100, hop_size=830, message="TimeStretch1", dynamic=True)
+    self.time_stretch = TimeStretch(probability=100, hop_size=920, message="TimeStretch1", dynamic=True)
     self.delay = Delay(probability=100, delay=3200, message="Echo1", dynamic=True)
     self.downsampling = Downsampling(probability=100, factor=2, message="Downsampling", dynamic=True)
     self.upsampling = Upsampling(probability=100, factor=2, message="Upsampling", dynamic=True)
-    self.cycle_length = 400
 
   def call(self, inputs, step):
-    
-    inputSTFTs, _ = inputs
-    
+
     attack_index = 0
     random_number = randint(1, 100)
     if self.validation is True:
@@ -582,57 +579,41 @@ class Attacks(Layer):
 
     if self.test is False:
       if random_number <= self.attack_probability*100:
-        if step > self.cycle_length and step <= 2*self.cycle_length:
+        if step > 1400 and step <= 2800:
           attack_index = randint(1, 1)
-        elif step > 2*self.cycle_length and step <= 3*self.cycle_length:
+        elif step > 2800 and step <= 7000:
           attack_index = randint(2, 2)
-        elif step > 3*self.cycle_length and step <= 4*self.cycle_length:
-          attack_index = randint(2, 3)
-        elif step > 4*self.cycle_length and step <= 5*self.cycle_length:
-          attack_index = 4 if randint(1, 100) <= 50 else randint(2, 3)
-        elif step > 5*self.cycle_length and step <= 6*self.cycle_length:
-          attack_index = 5 if randint(1, 100) <= 50 else randint(2, 4)
-        elif step > 6*self.cycle_length and step <= 7*self.cycle_length:
-          attack_index = 6 if randint(1, 100) <= 50 else randint(2, 5)
-        elif step > 7*self.cycle_length and step <= 8*self.cycle_length:
-          attack_index = 7 if randint(1, 100) <= 50 else randint(2, 6)
-        elif step > 8*self.cycle_length and step <= 9*self.cycle_length:
-          attack_index = 8 if randint(1, 100) <= 50 else randint(2, 7)
-        elif step > 9*self.cycle_length and step <= 10*self.cycle_length:
-          attack_index = 9 if randint(1, 100) <= 50 else randint(2, 8)
-        elif step > 10*self.cycle_length:
-          attack_index = randint(3, 10)
+        elif step > 7000:
+          attack_index = randint(1, 9)
     else:
       attack_index = self.attack_no
   
     if attack_index == 1:  
-      out = self.lowpass_filter(inputSTFTs)
+      out = self.lowpass_filter(inputs)
     elif attack_index == 3:
-      out = self.downsampling(inputSTFTs)      
-    elif attack_index == 5:
-      out = self.sample_cutting(inputSTFTs)
-    elif attack_index == 4: 
-      out = self.flip_samples(inputSTFTs)
+      out = self.downsampling(inputs)      
     elif attack_index == 2:
-      out = self.time_fold(inputSTFTs)
+      out = self.sample_cutting(inputs)
+    elif attack_index == 4: 
+      out = self.flip_samples(inputs)
+    elif attack_index == 5:
+      out = self.time_fold(inputs)
     elif attack_index == 6:
-      out = self.time_stretch(inputSTFTs)
+      out = self.time_stretch(inputs)
     elif attack_index == 7:
-      out = self.delay(inputSTFTs)
+      out = self.delay(inputs)
     elif attack_index == 8:
-      out = self.upsampling(inputSTFTs)
+      out = self.upsampling(inputs)
     elif attack_index == 9:
-      out = self.additive_noise(inputSTFTs)
+      out = self.additive_noise(inputs)
     else:
-      out = inputSTFTs
-    
-    
-    if attack_index>1 and (attack_index+1)*self.cycle_length<step:
-      random_number = randint(1, 100)
-      if random_number <= 75:
-        out = self.lowpass_filter(out)
-    elif attack_index>1 and (attack_index+1)*self.cycle_length>=step and attack_index*self.cycle_length<step and step%(self.cycle_length)>self.cycle_length//2:
-      random_number = randint(1, 100)
+      out = inputs
+
+    if attack_index>1:
+      random_number = 0
+      if self.validation is True:
+        random_number = randint(1,100)
+
       if random_number <= 75:
         out = self.lowpass_filter(out)
 

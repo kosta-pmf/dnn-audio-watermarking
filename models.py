@@ -5,8 +5,6 @@ from tensorflow.keras.optimizers import Nadam
 from attacks import ButterworthFilter, AdditiveNoise, CuttingSamples
 from utils import bwh
 from layers import PyramidPooling2D
-from random import randint
-from attacks import Attacks
 
 from config import *
 
@@ -129,7 +127,7 @@ def get_model():
     e = encoder([inp1, inp2])
     a = attack(e)
     d = decoder(a)
-    return decoder, Model(inputs=[inp1, inp2], outputs=[e, a, d])
+    return Model(inputs=[inp1, inp2], outputs=[e, a, d])
 
 def get_optimizer(lr=2*1e-4, schedule_decay=1e-6):
     return Nadam(lr=lr, schedule_decay=schedule_decay)
@@ -202,10 +200,6 @@ class Encoder(Model):
 
   def call(self, inputs):
     inputSTFTs, inputMessages = inputs
-
-    random_number = randint(1, 100)
-    if random_number<=20:
-      return inputSTFTs, False
 
     conv_0_out = self.conv_0(inputSTFTs)
     leakyrelu_0_out = self.leakyrelu_0(conv_0_out)
@@ -338,14 +332,3 @@ class Decoder(Model):
     out = self.dense(flatten_out)
 
     return  out
-
-def get_desync_model():
-  encoder = Encoder()
-  attack = Attacks(dynamic=True)
-  decoder = Decoder()
-  inp1 = Input(SIGNAL_SHAPE)
-  inp2 = Input(MESSAGE_SHAPE)
-  e = encoder([inp1, inp2])
-  a = attack(e)
-  d = decoder(a)
-  return Model(inputs=[inp1, inp2], outputs=[e, a, d])
